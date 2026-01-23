@@ -81,17 +81,22 @@ def new_todo(data):
     return TodoItem(title=data['title'], 
                     done=data.get('done', False))
 
-@app.route('/api/todos/', methods=['POST'])
-def add_todo():
+@app.route('/api/todos/<int:todo_id>/comments/', methods=['POST'])
+def add_comment(todo_id):
+    todo_item = TodoItem.query.get_or_404(todo_id)
+
     data = request.get_json()
-    todo = new_todo(data)
-    if todo:
-        db.session.add(todo)                       # บรรทัดที่ปรับใหม่
-        db.session.commit()                        # บรรทัดที่ปรับใหม่ 
-        return jsonify(todo.to_dict())             # บรรทัดที่ปรับใหม่
-    else:
-        # return http response code 400 for bad requests
-        return (jsonify({'error': 'Invalid todo data'}), 400) 
+    if not data or 'message' not in data:
+        return jsonify({'error': 'Comment message is required'}), 400
+
+    comment = Comment(
+        message=data['message'],
+        todo_id=todo_item.id
+    )
+    db.session.add(comment)
+    db.session.commit()
+ 
+    return jsonify(comment.to_dict())
     
 
 @app.route('/api/todos/<int:id>/toggle/', methods=['PATCH'])
