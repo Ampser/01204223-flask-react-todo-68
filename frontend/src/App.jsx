@@ -5,7 +5,7 @@ import './App.css'
 
 function App() {
   const TODOLIST_API_URL = 'http://localhost:5000/api/todos/';
-
+  const [newComments, setNewComments] = useState({});
   const [todoList, setTodoList] = useState([]);
   const [newTitle, setNewTitle] = useState("");
 
@@ -41,22 +41,22 @@ function App() {
     }
   }
 
-  async function addNewTodo() {
+   async function addNewComment(todoId) {
     try {
-      const response = await fetch(TODOLIST_API_URL, {
+      const url = `${TODOLIST_API_URL}${todoId}/comments/`;
+      const response = await fetch(url, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ 'title': newTitle }),
+        body: JSON.stringify({ 'message': newComments[todoId] || "" }),
       });
       if (response.ok) {
-        const newTodo = await response.json();
-        setTodoList([...todoList, newTodo]);
-        setNewTitle("");
+        setNewComments({ ...newComments, [todoId]: "" });
+        await fetchTodoList();
       }
     } catch (error) {
-      console.error("Error adding new todo:", error);
+      console.error("Error adding new comment:", error);
     }
   }
 
@@ -82,7 +82,23 @@ function App() {
           <li key={todo.id}>
             <span className={todo.done ? "done" : ""}>{todo.title}</span>
             <button onClick={() => {toggleDone(todo.id)}}>Toggle</button>
-            <button onClick={() => {deleteTodo(todo.id)}}>❌</button>
+             <button onClick={() => {deleteTodo(todo.id)}}>❌</button>
+            {(todo.comments) && (todo.comments.length > 0) && (
+              <> .... ละไว้ .... </>
+            )}
+            
+            <div className="new-comment-forms">
+              <input
+                type="text"
+                value={newComments[todo.id] || ""}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  setNewComments({ ...newComments, [todo.id]: value });
+                }}
+              />
+
+               <button onClick={() => {addNewComment(todo.id)}}>Add Comment</button>
+            </div>
 
 
             {(todo.comments) && (todo.comments.length > 0) && (
