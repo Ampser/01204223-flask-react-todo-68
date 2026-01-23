@@ -84,7 +84,7 @@ function App() {
             <button onClick={() => {toggleDone(todo.id)}}>Toggle</button>
              <button onClick={() => {deleteTodo(todo.id)}}>❌</button>
             {(todo.comments) && (todo.comments.length > 0) && (
-              <> .... ละไว้ .... </>
+              <>  </>
             )}
             
             <div className="new-comment-forms">
