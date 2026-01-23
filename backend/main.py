@@ -4,6 +4,8 @@ from sqlalchemy import Integer, String
 from sqlalchemy.orm import Mapped, mapped_column
 from flask import Flask, request, jsonify
 from flask_cors import CORS
+from sqlalchemy.orm import Mapped, mapped_column
+from flask_migrate import Migrate 
 
 app = Flask(__name__)
 CORS(app)
@@ -12,6 +14,7 @@ class Base(DeclarativeBase):
   pass
 
 db = SQLAlchemy(app, model_class=Base)
+migrate = Migrate(app, db)      
 class TodoItem(db.Model):
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     title: Mapped[str] = mapped_column(String(100))
@@ -23,8 +26,8 @@ class TodoItem(db.Model):
             "title": self.title,
             "done": self.done
         }
-with app.app_context():
-    db.create_all()
+#with app.app_context():
+#   db.create_all()
 
 INITIAL_TODOS = [
     TodoItem(title='Learn Flask'),
