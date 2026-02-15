@@ -1,6 +1,7 @@
-import { render, screen } from '@testing-library/react'
 import { expect } from 'vitest'
 import TodoItem from '../TodoItem.jsx'
+import { render, screen, fireEvent } from '@testing-library/react'   // เพิ่ม *** fireEvent
+import userEvent from '@testing-library/user-event'
 
 const baseTodo = {             // ** TodoItem พื้นฐานสำหรับทดสอบ
   id: 1,
@@ -49,4 +50,60 @@ describe('TodoItem', () => {
      expect(screen.getByText('First comment')).toBeInTheDocument();
      expect(screen.getByText('Another comment')).toBeInTheDocument();
   });
+  //4
+   it('makes callback to toggleDone when Toggle button is clicked', () => {
+    const onToggleDone = vi.fn();
+    render(
+      <TodoItem 
+       todo={baseTodo} 
+       toggleDone={onToggleDone} />
+    );
+    const button = screen.getByRole('button', { name: /toggle/i });
+    button.click();
+    expect(onToggleDone).toHaveBeenCalledWith(baseTodo.id);
+  });
+  //5
+    it('makes callback to deleteTodo when delete button is clicked', () => {
+    const onDeleteTodo = vi.fn();
+
+    render(
+        <TodoItem
+        todo={baseTodo}
+        deleteTodo={onDeleteTodo}
+        toggleDone={() => {}}
+        addNewComment={() => {}}
+        />
+    );
+
+    const button = screen.getByRole('button', { name: '❌' });
+    button.click();
+
+    expect(onDeleteTodo).toHaveBeenCalledWith(baseTodo.id);
+    });
+   //6
+    it('makes callback to addNewComment when a new comment is added', async () => {
+        const onAddNewComment = vi.fn();
+        render(
+            //
+            // TODO: เติม component และ prop
+            //
+            <TodoItem
+                todo={baseTodo}
+                addNewComment={onAddNewComment} />
+
+        );
+
+        // พิมพ์ข้อความลงใน textbox
+        const input = screen.getByRole('textbox');
+        await userEvent.type(input, 'New comment');
+
+        // กดปุ่ม: ในที่นี้เราใช้ fireEvent เพราะว่าระหว่างการอัพเดทจะมีการเปลี่ยน state ถ้าไม่ใช่จะมี warning
+        const button = screen.getByRole('button', { name: /add comment/i });
+        fireEvent.click(button);
+
+        // assert
+        expect(onAddNewComment).toHaveBeenCalledWith(baseTodo.id, 'New comment');
+    });
+
+
 });
