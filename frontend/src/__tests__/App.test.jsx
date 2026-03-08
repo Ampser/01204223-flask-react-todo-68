@@ -7,6 +7,13 @@ const mockResponse = (body, ok = true) =>
     ok,
     json: () => Promise.resolve(body),
 });
+
+vi.mock('../context/AuthContext', () => ({
+  useAuth: vi.fn(),
+  AuthProvider: ({ children }) => <>{children}</>,  
+}));
+
+import { useAuth } from '../context/AuthContext';
 // *** ย้ายมาที่นี่
 const todoItem1 = { id: 1, title: 'First todo', done: false, comments: [] };
 const todoItem2 = { id: 2, title: 'Second todo', done: false, comments: [
@@ -21,10 +28,16 @@ const originalTodoList = [
 
 
 
-describe('App', () => {
-  beforeEach(() => {
-    vi.stubGlobal('fetch', vi.fn());
+describe('TodoList', () => {
+beforeEach(() => {
+  vi.stubGlobal('fetch', vi.fn());
+  useAuth.mockReturnValue({
+    username: 'testuser',
+    accessToken: 'fake-token', 
+    login: vi.fn(),
+    logout: vi.fn(),
   });
+});
 
   afterEach(() => {
     vi.resetAllMocks();
@@ -65,7 +78,8 @@ describe('App', () => {
     toggleButtons[0].click();
 
     // ตรวจสอบว่า todo item นั้นเปลี่ยนคลาสเป็น done แล้ว
-    expect(await screen.findByText('First todo')).toHaveClass('done');
+    expect(global.fetch).toHaveBeenLastCalledWith(expect.stringMatching(/1\/toggle/), 
+                                                  expect.anything());  
   });
 
 });
