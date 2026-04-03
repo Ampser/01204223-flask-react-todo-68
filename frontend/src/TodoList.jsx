@@ -15,14 +15,15 @@ function TodoList({apiUrl}) {
     fetchTodoList();
   }, [username]);
   async function addNewTodo() {
-    try {
-      const response = await fetch(TODOLIST_API_URL, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ 'title': newTitle }),
-      });
+  try {
+    const response = await fetch(TODOLIST_API_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${accessToken}` 
+      },
+      body: JSON.stringify({ 'title': newTitle }),
+    });
       if (response.ok) {
         const newTodo = await response.json();
         setTodoList([...todoList, newTodo]);
@@ -51,11 +52,14 @@ function TodoList({apiUrl}) {
   }
 
   async function toggleDone(id) {
-    const toggle_api_url = `${TODOLIST_API_URL}${id}/toggle/`
-    try {
-      const response = await fetch(toggle_api_url, {
-        method: 'PATCH',
-      })
+  const toggle_api_url = `${TODOLIST_API_URL}${id}/toggle/`
+  try {
+    const response = await fetch(toggle_api_url, {
+      method: 'PATCH',
+      headers: {
+        'Authorization': `Bearer ${accessToken}` 
+      }
+    })
       if (response.ok) {
         const updatedTodo = await response.json();
         setTodoList(todoList.map(todo => todo.id === id ? updatedTodo : todo));
@@ -66,15 +70,16 @@ function TodoList({apiUrl}) {
   }
 
   async function addNewComment(todoId, newComment) {  
-     try {
-      const url = `${TODOLIST_API_URL}${todoId}/comments/`;
-      const response = await fetch(url, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ 'message': newComment }),    // ใช้ newComment
-      });
+   try {
+    const url = `${TODOLIST_API_URL}${todoId}/comments/`;
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${accessToken}` 
+      },
+      body: JSON.stringify({ 'message': newComment }),
+    });
       if (response.ok) {
  
         await fetchTodoList();
@@ -84,11 +89,14 @@ function TodoList({apiUrl}) {
     }
   }
   async function deleteTodo(id) {
-    const delete_api_url = `${TODOLIST_API_URL}${id}/`
-    try {
-      const response = await fetch(delete_api_url, {
-        method: 'DELETE',
-      });
+  const delete_api_url = `${TODOLIST_API_URL}${id}/`
+  try {
+    const response = await fetch(delete_api_url, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${accessToken}` 
+      }
+    });
       if (response.ok) {
         setTodoList(todoList.filter(todo => todo.id !== id));
       }
